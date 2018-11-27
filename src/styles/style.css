@@ -1,0 +1,43 @@
+body {
+  background-color: black;
+  color: #ffffff;
+  min-height: 100vh;
+  min-width: 100vw;
+}
+
+#app {
+  min-height: 100%;
+  min-width: 100%;
+}
+
+.semi__static__text {
+  min-width: 100%;
+}
+@keyframes redactFade {
+  from {
+    color: #ffffff;
+  }
+  to {
+    color: orange;
+  }
+}
+.timer {
+  color: #ffffff;
+  text-align: center;
+  font-weight: bolder;
+}
+.word--redacted {
+  animation-fill-mode: forwards;
+  animation-duration: 2s;
+  animation-name: redactFade;
+}
+
+.guess {
+  display: flex;
+  justify-content: center;
+}
+.guess__field {
+  margin-top: 3em;
+  padding: 1em 6em;
+  font-size: 2em;
+}
