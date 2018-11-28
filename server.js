@@ -11,7 +11,6 @@ const options = { refreshRateMS: 1000, almostDoneMS: 1000 };
 let playersIn = 0;
 let results = {};
 let refinedResults = {};
-let sortedResults = [];
 let roundData = {};
 let gameOver = false;
 let timer = new Stopwatch(15000);
@@ -31,22 +30,27 @@ function generateRandomYear(min, max) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
-function movieSelection(movies) {
-  //Pick film, determine difficulty.
-  let num = generateRandomYear(1, 3);
-  let movie = movies.results[num];
-  //Cut out revealing details
-  const words = movie.overview.split(" ");
-  const exclude = ["the", "as", "and", "is", "for", "in", "of"];
-  let titleDisected = movie.title.split(" ");
-  let editedPlot = words.map(word =>
-    titleDisected.includes(word) && !exclude.includes(word)
-      ? new Array(word.length + 1).join(" ")
-      : word
-  );
-  //let words = editedPlot;
-  let plot = editedPlot.join(" ");
-  return { plot: plot, title: movie.title };
+function movieSelection(movies, room) {
+  let tenFilms = [];
+  //Pick film lineup for room.
+  for (let i = 0; i < 10; i++) {
+    tenFilms.push(movies.results[i]);
+  }
+  let tenFilmsEdited = tenFilms.map(film => {
+    let words = film.overview.split(" ");
+    let titleDisected = film.title.split(" ");
+    const exclude = ["the", "as", "and", "is", "for", "in", "of"];
+    let editedPlot = words.map(word =>
+      titleDisected.includes(word) && !exclude.includes(word)
+        ? new Array(word.length + 1).join(" ")
+        : word
+    );
+    //console.log("edited plot:", editedPlot.join(" "), "film title", film.title);
+    return { plot: editedPlot.join(" "), title: film.title };
+  });
+  //locate which round the room is on. Make that the index.
+  console.log(tenFilmsEdited);
+  return tenFilmsEdited[roundData[room]];
 }
 
 // handle incoming connections from clients
@@ -54,12 +58,14 @@ io.on("connection", socket => {
   getFilm();
   // once a client has connected, we expect to get a ping from them saying what room they want to join
   socket.on("disconnect", () => {
-    console.log("user disconnected");
+    timer.destroy();
+    // io.to(room).emit("A user disconnected!");
   });
 
   socket.on("room", room => {
     socket.join(room);
-
+    roundData[room] = 0;
+    console.log(roundData);
     let clients = io.sockets.adapter.rooms[room].length;
     io.to(room).emit("message", clients);
     socket.on("answer correct", socket => {});
@@ -73,12 +79,13 @@ io.on("connection", socket => {
     io.to(room).emit("count", readyCount);
     if (readyCount === 4) {
       movies !== {}
-        ? io.to(room).emit("players ready", movieSelection(movies))
+        ? io.to(room).emit("players ready", movieSelection(movies, room))
         : io.to(room).emit("loading");
     }
   });
   //player's quiz component mounts
   socket.on("player in", room => {
+    //console.log(movieSelection(movies, room));
     playersIn += 1;
     if (playersIn === 4) {
       console.log("players are all in");
@@ -91,7 +98,7 @@ io.on("connection", socket => {
         }
       });
       timer.whenDone(() => {
-        io.to(room).emit("round over", movieSelection(movies));
+        io.to(room).emit("round over", movieSelection(movies, room));
         timer.reset();
         timer.start();
         incrementRound(room);
@@ -114,7 +121,7 @@ io.on("connection", socket => {
     let roundCount = Object.keys(roundData).map(roomName =>
       roomName === room ? roundData[roomName] : null
     );
-    if (roundCount[0] === 2) {
+    if (roundCount[0] === 8) {
       timer.destroy();
       console.log("yoyo");
       //turn {id: [true, false, true]} into {id: 2}
@@ -140,8 +147,9 @@ io.on("connection", socket => {
 //For purposes of primitive extensibility. Each room has a round counter.
 function incrementRound(room) {
   roundData = Object.assign(roundData, {
-    [room]: roundData[room] ? (roundData[room] += 1) : 1
+    [room]: (roundData[room] += 1)
   });
+  console.log(roundData);
 }
 ////Turn refined list into a sorted list.
 function sorted(refinedResults) {
