@@ -33,11 +33,7 @@ class Quiz extends React.Component {
   timer(socket) {
     socket.on("time", time => {
       console.log(time);
-      if (!Number.isNaN(time)) {
-        let rounded = Math.ceil(time / 1000) * 1000;
-        let timeInSeconds = rounded / 1000;
-        this.setState({ time: timeInSeconds });
-      }
+      this.setState({ time: time });
     });
   }
 

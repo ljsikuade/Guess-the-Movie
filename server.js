@@ -4,16 +4,22 @@ const bodyParser = require("body-parser");
 const app = express();
 let server = app.listen(8080);
 const io = require("socket.io").listen(server);
-let Stopwatch = require("tm-timer");
 let readyCount = 0;
 let movies = {};
-const options = { refreshRateMS: 1000, almostDoneMS: 1000 };
 let playersIn = 0;
 let results = {};
 let refinedResults = {};
 let roundData = {};
-let gameOver = false;
-let timer = new Stopwatch(15000);
+
+function timer(time, everySecond, whenDone) {
+  everySecond = everySecond || function() {};
+  whenDone = whenDone || function() {};
+  let interval = setInterval(() => {
+    everySecond(time);
+    time-- || clearInterval(interval, whenDone());
+  }, 1000);
+}
+
 // attach Socket.io to our HTTP server
 function getFilm() {
   let randomYear = generateRandomYear(1960, 2018);
@@ -30,7 +36,7 @@ function generateRandomYear(min, max) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
-function movieSelection(movies, room) {
+function movieSelection(movies, room, condition) {
   let tenFilms = [];
   //Pick film lineup for room.
   for (let i = 0; i < 10; i++) {
@@ -48,8 +54,12 @@ function movieSelection(movies, room) {
     //console.log("edited plot:", editedPlot.join(" "), "film title", film.title);
     return { plot: editedPlot.join(" "), title: film.title };
   });
+
+  //Not the start of the quiz. This is hacky and hopefully temporary solution.
+  if (condition) {
+    return tenFilmsEdited[roundData[room] + 1];
+  }
   //locate which round the room is on. Make that the index.
-  console.log(tenFilmsEdited);
   return tenFilmsEdited[roundData[room]];
 }
 
@@ -58,7 +68,6 @@ io.on("connection", socket => {
   getFilm();
   // once a client has connected, we expect to get a ping from them saying what room they want to join
   socket.on("disconnect", () => {
-    timer.destroy();
     // io.to(room).emit("A user disconnected!");
   });
 
@@ -68,14 +77,11 @@ io.on("connection", socket => {
     console.log(roundData);
     let clients = io.sockets.adapter.rooms[room].length;
     io.to(room).emit("message", clients);
-    socket.on("answer correct", socket => {});
-    socket.on("answer wrong", socket => {});
   });
 
   socket.on("ready", room => {
     //persisting ready state.
     readyCount++;
-    console.log("ready count:", readyCount);
     io.to(room).emit("count", readyCount);
     if (readyCount === 4) {
       movies !== {}
@@ -90,19 +96,23 @@ io.on("connection", socket => {
     if (playersIn === 4) {
       console.log("players are all in");
       io.to(room).emit("begin round");
-      timer.start();
-      timer.onTick((isBigTick, timeLeft) => {
-        if (isBigTick && !gameOver) {
-          io.to(room).emit("time", timeLeft);
-          console.log(timeLeft);
+
+      const emitTime = function(timeLeft) {
+        io.to(room).emit("time", timeLeft);
+      };
+      const resetRound = function() {
+        if (roundData[room] + 1 > 4) {
+          return;
         }
-      });
-      timer.whenDone(() => {
-        io.to(room).emit("round over", movieSelection(movies, room));
-        timer.reset();
-        timer.start();
+        io.to(room).emit(
+          "round over",
+          movieSelection(movies, room, "startSecondEntry")
+        );
         incrementRound(room);
-      });
+        const time = new timer(15, emitTime, resetRound);
+        return time;
+      };
+      const stopWatch = new timer(15, emitTime, resetRound);
     }
   });
 
@@ -112,7 +122,6 @@ io.on("connection", socket => {
         ? results[id].concat(correctIncorrect)
         : [correctIncorrect]
     });
-    //console.log(results);
     ack(results);
   });
 
@@ -121,8 +130,7 @@ io.on("connection", socket => {
     let roundCount = Object.keys(roundData).map(roomName =>
       roomName === room ? roundData[roomName] : null
     );
-    if (roundCount[0] === 8) {
-      timer.destroy();
+    if (roundCount[0] === 4) {
       console.log("yoyo");
       //turn {id: [true, false, true]} into {id: 2}
       Object.keys(results).forEach(key => {
