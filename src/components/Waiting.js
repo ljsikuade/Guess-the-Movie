@@ -1,6 +1,7 @@
 import React from "react";
 //let host = `${window.location.protocol}//${window.location.host}`;
 let globalSocket;
+
 class Waiting extends React.Component {
   constructor() {
     super();
@@ -8,7 +9,9 @@ class Waiting extends React.Component {
       playerCount: 1,
       players: 0,
       readyCount: 0,
-      ready: undefined
+      ready: undefined,
+      fullMessage: "",
+      showFullMessage: false
     };
     this.readyUp = this.readyUp.bind(this);
   }
@@ -43,7 +46,9 @@ class Waiting extends React.Component {
       // set-up a room-based connection between the client and the server
       let room = this.props.room;
       socket.emit("room", room);
-
+      socket.on("full", message => {
+        this.props.reloadLobby(message);
+      });
       socket.on("message", roomData => {
         this.setState({ players: roomData });
         console.log("You are now in the room", roomData);

@@ -8,6 +8,7 @@ import Scores from "./Scores";
 //c1eda2d27f7a73d8ca633b6936e5b012
 //https://api.themoviedb.org/3/discover/movie?api_key=c1eda2d27f7a73d8ca633b6936e5b012&language=en-US&sort_by=popularity.desc&primary_release_year=1980&include_adult=false&include_video=false&page=1
 let socket = io();
+
 class App extends React.Component {
   constructor() {
     super();
@@ -21,9 +22,12 @@ class App extends React.Component {
       lobby: true,
       start: false,
       end: false,
+      round: 0,
+      message: "",
       gameResults: []
     };
     // this.handleEndOfAnimation = this.handleEndOfAnimation.bind(this);
+    this.reloadLobby = this.reloadLobby.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
     this.connectToRoom = this.connectToRoom.bind(this);
     this.handleChange = this.handleChange.bind(this);
@@ -39,7 +43,9 @@ class App extends React.Component {
   //   //Animation ended START TIMER
   //   transitionAmount === plotString.length ? this.setState({}) : null;
   // }
-
+  reloadLobby(message) {
+    this.setState({ message: message, renderWaiting: false, lobby: true });
+  }
   handleChange(event) {
     this.setState({ value: event.target.value });
   }
@@ -83,9 +89,15 @@ class App extends React.Component {
   render() {
     return (
       <section>
-        {this.state.lobby && <Lobby connectToRoom={this.connectToRoom} />}
+        {this.state.lobby && (
+          <Lobby
+            message={this.state.message}
+            connectToRoom={this.connectToRoom}
+          />
+        )}
         {this.state.renderWaiting && (
           <Waiting
+            reloadLobby={this.reloadLobby}
             startQuiz={this.startQuiz}
             room={this.state.room}
             socket={socket}

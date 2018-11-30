@@ -9,15 +9,18 @@ let movies = {};
 let playersIn = 0;
 let results = {};
 let refinedResults = {};
+let firstAnswer;
 let roundData = {};
+let callCount = 0;
 
-function timer(time, everySecond, whenDone) {
+function timer(time, everySecond, whenDone, killCondition) {
   everySecond = everySecond || function() {};
   whenDone = whenDone || function() {};
   let interval = setInterval(() => {
     everySecond(time);
     time-- || clearInterval(interval, whenDone());
   }, 1000);
+  killCondition ? clearInterval(interval) : null;
 }
 
 // attach Socket.io to our HTTP server
@@ -73,10 +76,24 @@ io.on("connection", socket => {
 
   socket.on("room", room => {
     socket.join(room);
-    roundData[room] = 0;
-    console.log(roundData);
+
     let clients = io.sockets.adapter.rooms[room].length;
-    io.to(room).emit("message", clients);
+    if (clients > 4) {
+      socket.leave(room);
+      let socketId = socket.id;
+      //to the client being denied access.
+      io.to(`${socketId}`).emit(
+        "full",
+        `${room} is currently full! (Maximum 4 players.)`
+      );
+      //to the room as a whole.
+    }
+    //this is janky
+    let ultimateClients = io.sockets.adapter.rooms[room].length;
+    //start the room off with empty round data.
+    roundData[room] = 0;
+    io.to(room).emit("round", roundData);
+    io.to(room).emit("message", ultimateClients);
   });
 
   socket.on("ready", room => {
@@ -113,13 +130,19 @@ io.on("connection", socket => {
         return time;
       };
       const stopWatch = new timer(15, emitTime, resetRound);
+      console.log(firstAnswer);
     }
   });
 
   socket.on("answer", (correctIncorrect, id, ack) => {
+    callCount++;
+    if (correctIncorrect === true && callCount >= 1) {
+      firstAnswer = true;
+      callCount = 0;
+    }
     results = Object.assign(results, {
       [id]: results[id]
-        ? results[id].concat(correctIncorrect)
+        ? results[id].concat({ correctIncorrect })
         : [correctIncorrect]
     });
     ack(results);
@@ -147,7 +170,6 @@ io.on("connection", socket => {
       });
       //Send the final sorted results over.
       io.to(room).emit("game end", sorted(refinedResults));
-      gameOver = true;
     }
   });
 });
