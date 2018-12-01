@@ -4,16 +4,14 @@ const bodyParser = require("body-parser");
 const app = express();
 let server = app.listen(8080);
 const io = require("socket.io").listen(server);
-let readyCount = 0;
 let movies = {};
 let playersIn = 0;
 let results = {};
 let refinedResults = {};
-let firstAnswer;
 let roundData = {};
 let readyObj = {};
-let callCount = 0;
 
+//I should make this an object...
 function timer(time, everySecond, whenDone, killCondition) {
   everySecond = everySecond || function() {};
   whenDone = whenDone || function() {};
@@ -24,7 +22,6 @@ function timer(time, everySecond, whenDone, killCondition) {
   killCondition ? clearInterval(interval) : null;
 }
 
-// attach Socket.io to our HTTP server
 function getFilm() {
   let randomYear = generateRandomYear(1960, 2018);
   fetch(
@@ -55,11 +52,11 @@ function movieSelection(movies, room, condition) {
         ? new Array(word.length + 1).join(" ")
         : word
     );
-    //console.log("edited plot:", editedPlot.join(" "), "film title", film.title);
+
     return { plot: editedPlot.join(" "), title: film.title };
   });
 
-  //Not the start of the quiz. This is hacky and hopefully temporary solution.
+  //Not the start of the quiz.
   if (condition) {
     return tenFilmsEdited[roundData[room] + 1];
   }
@@ -67,17 +64,16 @@ function movieSelection(movies, room, condition) {
   return tenFilmsEdited[roundData[room]];
 }
 
-// handle incoming connections from clients
+// Handle incoming connections from clients.
 io.on("connection", socket => {
   getFilm();
-  // once a client has connected, we expect to get a ping from them saying what room they want to join
-  socket.on("disconnect", () => {
-    // io.to(room).emit("A user disconnected!");
-  });
 
+  socket.on("disconnect", () => {
+    // tbd
+  });
+  // Once a client has connected, we expect to get a ping from them saying what room they want to join
   socket.on("room", room => {
     socket.join(room);
-
     let clients = io.sockets.adapter.rooms[room].length;
     if (clients > 4) {
       socket.leave(room);
@@ -89,21 +85,21 @@ io.on("connection", socket => {
       );
       //to the room as a whole.
     }
-    //this is janky
+
     let ultimateClients = io.sockets.adapter.rooms[room].length;
-    //start the room off with empty round data.
+    //Start the room off with empty round data.
     roundData[room] = 0;
+    //Send this information to the client to be displayed where relevant.
     io.to(room).emit("round", roundData);
     io.to(room).emit("message", ultimateClients);
   });
 
   socket.on("ready", room => {
-    //persisting ready state.
-    //A toggle-able record of player clicks.
+    //A toggleable record of player clicks. ready || not ready
     readyObj = Object.assign({}, readyObj, {
       [socket.id]: readyObj[socket.id] ? 0 : 1
     });
-
+    //Send the number of ready players to the room.
     let readyCount = Object.values(readyObj).reduce((acc, curr) => acc + curr);
     io.to(room).emit("count", readyCount);
 
@@ -115,8 +111,8 @@ io.on("connection", socket => {
   });
   //player's quiz component mounts
   socket.on("player in", room => {
-    //console.log(movieSelection(movies, room));
     playersIn += 1;
+    //Start the timer.
     if (playersIn === 4) {
       console.log("players are all in");
       io.to(room).emit("begin round");
@@ -136,17 +132,12 @@ io.on("connection", socket => {
         const time = new timer(15, emitTime, resetRound);
         return time;
       };
+
       const stopWatch = new timer(15, emitTime, resetRound);
-      console.log(firstAnswer);
     }
   });
-
+  //Records client answers.
   socket.on("answer", (correctIncorrect, id, ack) => {
-    callCount++;
-    if (correctIncorrect === true && callCount >= 1) {
-      firstAnswer = true;
-      callCount = 0;
-    }
     results = Object.assign(results, {
       [id]: results[id]
         ? results[id].concat({ correctIncorrect })
@@ -156,7 +147,7 @@ io.on("connection", socket => {
   });
 
   socket.on("round over ack", room => {
-    //find room in round data if it's on round 10. End the game.
+    //Find room in round data if it's on round x. End the game.
     let roundCount = Object.keys(roundData).map(roomName =>
       roomName === room ? roundData[roomName] : null
     );
@@ -182,13 +173,15 @@ io.on("connection", socket => {
 });
 
 //For purposes of primitive extensibility. Each room has a round counter.
+//Ideally I would move all room data (results etc.) over to this variable
+//in lieu of a database (but obviously a db is preferable)
 function incrementRound(room) {
   roundData = Object.assign(roundData, {
     [room]: (roundData[room] += 1)
   });
   console.log(roundData);
 }
-////Turn refined list into a sorted list.
+//Turn refined list into a sorted list.
 function sorted(refinedResults) {
   let localResultArray = [];
   for (let prop in refinedResults) {
@@ -199,7 +192,7 @@ function sorted(refinedResults) {
       });
     }
   }
-  console.log(localResultArray);
+
   localResultArray.sort((a, b) => a.value - b.value);
   return localResultArray.reverse();
 }

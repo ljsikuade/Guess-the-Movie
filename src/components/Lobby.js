@@ -25,7 +25,7 @@ class Lobby extends React.Component {
     event.preventDefault();
     this.props.connectToRoom(this.state.value);
   }
-
+  //Only when the component gets remounted.
   componentDidMount() {
     if (this.props.message) {
       setTimeout(() => this.setState({ showFullMessage: false }), 3000);

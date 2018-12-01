@@ -5,8 +5,7 @@ import Quiz from "./Quiz";
 import Lobby from "./Lobby";
 import Waiting from "./Waiting";
 import Scores from "./Scores";
-//c1eda2d27f7a73d8ca633b6936e5b012
-//https://api.themoviedb.org/3/discover/movie?api_key=c1eda2d27f7a73d8ca633b6936e5b012&language=en-US&sort_by=popularity.desc&primary_release_year=1980&include_adult=false&include_video=false&page=1
+
 let socket = io();
 
 class App extends React.Component {
@@ -27,7 +26,7 @@ class App extends React.Component {
       gameResults: [],
       disableAnswerField: false
     };
-    // this.handleEndOfAnimation = this.handleEndOfAnimation.bind(this);
+
     this.reloadLobby = this.reloadLobby.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
     this.connectToRoom = this.connectToRoom.bind(this);
@@ -38,13 +37,6 @@ class App extends React.Component {
     this.revokeAnswerField = this.revokeAnswerField.bind(this);
   }
 
-  // handleEndOfAnimation() {
-  //   let plotString = this.state.plot.replace(/\s/g, "");
-  //   transitionAmount += 1;
-
-  //   //Animation ended START TIMER
-  //   transitionAmount === plotString.length ? this.setState({}) : null;
-  // }
   reloadLobby(message) {
     this.setState({ message: message, renderWaiting: false, lobby: true });
   }
@@ -64,7 +56,7 @@ class App extends React.Component {
       title: title
     });
   }
-
+  //New round (with data) comes in from server.
   updateQuiz(plot, title) {
     this.setState({ plot: plot, title: title });
   }
@@ -72,9 +64,8 @@ class App extends React.Component {
   gameEnd(gameResults) {
     console.log(gameResults);
     this.setState({ start: false, end: true, gameResults: gameResults });
-    //{id: [true, false]}
   }
-
+  // client answers
   handleSubmit(event) {
     event.preventDefault();
     if (this.state.value === this.state.title) {
@@ -88,6 +79,7 @@ class App extends React.Component {
     }
     this.setState({ disableAnswerField: true });
   }
+  //re-enable the answer field at the beginning of every round.
   revokeAnswerField() {
     this.setState({ disableAnswerField: false });
   }
