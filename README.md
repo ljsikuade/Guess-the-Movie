@@ -21,9 +21,9 @@ A user cannot enter more than one answer per round.
 ![player scores](https://i.imgur.com/EFDkhIW.png)
 
 # Technologies
-** React
-** Node
-** Socket.io
+* React
+* Node
+* Socket.io
 
 # Set Up
 
