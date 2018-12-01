@@ -35,7 +35,7 @@ class Lobby extends React.Component {
   render() {
     return (
       <section className="lobby">
-        <h1 className="title">Create a room</h1>
+        <h1 className="title">Create / Join a room</h1>
         <form className="room-selector" onSubmit={this.handleSubmit}>
           <input
             className="room-input"
