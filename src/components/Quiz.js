@@ -26,6 +26,7 @@ class Quiz extends React.Component {
     socket.on("round over", movie => {
       this.props.updateQuiz(movie.plot, movie.title);
       socket.emit("round over ack", this.props.room);
+      this.props.revokeAnswerField();
     });
     socket.on("game end", data => this.props.gameEnd(data));
   }
@@ -56,6 +57,7 @@ class Quiz extends React.Component {
             value={this.props.value}
             className="guess__field"
             onChange={this.props.handleChange}
+            disabled={this.props.disableAnswerField}
           />
         </form>
       </main>

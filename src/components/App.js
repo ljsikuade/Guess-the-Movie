@@ -24,7 +24,8 @@ class App extends React.Component {
       end: false,
       round: 0,
       message: "",
-      gameResults: []
+      gameResults: [],
+      disableAnswerField: false
     };
     // this.handleEndOfAnimation = this.handleEndOfAnimation.bind(this);
     this.reloadLobby = this.reloadLobby.bind(this);
@@ -34,6 +35,7 @@ class App extends React.Component {
     this.startQuiz = this.startQuiz.bind(this);
     this.updateQuiz = this.updateQuiz.bind(this);
     this.gameEnd = this.gameEnd.bind(this);
+    this.revokeAnswerField = this.revokeAnswerField.bind(this);
   }
 
   // handleEndOfAnimation() {
@@ -84,6 +86,10 @@ class App extends React.Component {
         console.log(results);
       });
     }
+    this.setState({ disableAnswerField: true });
+  }
+  revokeAnswerField() {
+    this.setState({ disableAnswerField: false });
   }
 
   render() {
@@ -114,6 +120,8 @@ class App extends React.Component {
             room={this.state.room}
             gameEnd={this.gameEnd}
             updateQuiz={this.updateQuiz}
+            disableAnswerField={this.state.disableAnswerField}
+            revokeAnswerField={this.revokeAnswerField}
           />
         )}
         {this.state.end && (
