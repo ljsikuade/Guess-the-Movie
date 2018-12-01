@@ -11,6 +11,7 @@ let results = {};
 let refinedResults = {};
 let firstAnswer;
 let roundData = {};
+let readyObj = {};
 let callCount = 0;
 
 function timer(time, everySecond, whenDone, killCondition) {
@@ -98,8 +99,14 @@ io.on("connection", socket => {
 
   socket.on("ready", room => {
     //persisting ready state.
-    readyCount++;
+    //A toggle-able record of player clicks.
+    readyObj = Object.assign({}, readyObj, {
+      [socket.id]: readyObj[socket.id] ? 0 : 1
+    });
+
+    let readyCount = Object.values(readyObj).reduce((acc, curr) => acc + curr);
     io.to(room).emit("count", readyCount);
+
     if (readyCount === 4) {
       movies !== {}
         ? io.to(room).emit("players ready", movieSelection(movies, room))
