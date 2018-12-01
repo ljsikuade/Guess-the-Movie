@@ -53,21 +53,21 @@ and experiment.
 
 # The User Journey
 1. User joins a room.
-![joins](https://imgur.com/YWUY7KX)
+![joins](https://i.imgur.com/YWUY7KX.png)
 
 2. Once more than two people have joined. User may select 'ready'.
-![user ready](https://imgur.com/6ncRZcw)
-![user ready](https://imgur.com/5iukyCk)
+![user ready](https://i.imgur.com/6ncRZcw.png)
+![user ready](https://i.imgur.com/5iukyCk.png)
 
 3. Once four players are ready, the game auto-starts. No more than four players are allowed in a room.
-![player rejection](https://imgur.com/Vt3qtD9)
+![player rejection](https://i.imgur.com/Vt3qtD9.png)
 
 4. Five rounds are played (but this can be any number). Fifteen seconds elapse per round.
 A user cannot enter more than one answer per round.
-![round view](https://imgur.com/Bnt0jA8)
+![round view](https://i.imgur.com/Bnt0jA8.png)
 
 5. After five rounds, the scores are displayed.
-![player scores](https://imgur.com/EFDkhIW)
+![player scores](https://i.imgur.com/EFDkhIW.png)
 
 # Technologies
 ** React
