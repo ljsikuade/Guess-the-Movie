@@ -4,7 +4,7 @@ and experiment.
 
 # The User Journey
 1. User joins a room.
-![joins](https://imgur.com/YWUY7KX)
+![joins](https://i.imgur.com/YWUY7KX.png)
 
 2. Once more than two people have joined. User may select 'ready'.
 ![user ready](https://imgur.com/6ncRZcw)
