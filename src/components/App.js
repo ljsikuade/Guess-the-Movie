@@ -94,7 +94,7 @@ class App extends React.Component {
 
   render() {
     return (
-      <section>
+      <section className="component-holder">
         {this.state.lobby && (
           <Lobby
             message={this.state.message}

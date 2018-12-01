@@ -41,16 +41,18 @@ class Quiz extends React.Component {
   render() {
     console.log(this.props.title);
     return (
-      <main className="wrapper">
-        <SplitText
-          className="animation__text"
-          // onPoseComplete={this.handleEndOfAnimation}
-          initialPose="exit"
-          pose="enter"
-          charPoses={charPoses}
-        >
-          {this.props.plot}
-        </SplitText>
+      <section className="wrapper">
+        <div className="plot-summary">
+          <SplitText
+            className="animation__text"
+            // onPoseComplete={this.handleEndOfAnimation}
+            initialPose="exit"
+            pose="enter"
+            charPoses={charPoses}
+          >
+            {this.props.plot}
+          </SplitText>
+        </div>
         <h1 className="timer">{this.state.time}</h1>
         <form onSubmit={this.props.handleSubmit} className="guess">
           <input
@@ -60,7 +62,7 @@ class Quiz extends React.Component {
             disabled={this.props.disableAnswerField}
           />
         </form>
-      </main>
+      </section>
     );
   }
 }

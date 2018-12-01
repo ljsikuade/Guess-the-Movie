@@ -34,14 +34,19 @@ class Lobby extends React.Component {
 
   render() {
     return (
-      <section>
-        <form onSubmit={this.handleSubmit}>
-          <input value={this.state.value} onChange={this.handleChange} />
+      <section className="lobby">
+        <h1 className="title">Create a room</h1>
+        <form className="room-selector" onSubmit={this.handleSubmit}>
+          <input
+            className="room-input"
+            value={this.state.value}
+            onChange={this.handleChange}
+          />
         </form>
 
         {this.state.showFullMessage && (
           <SplitText
-            className="animation__text"
+            className="warning-text"
             initialPose="exit"
             pose="enter"
             charPoses={charPoses}

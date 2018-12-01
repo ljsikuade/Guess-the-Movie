@@ -2,13 +2,14 @@ import React from "react";
 
 function Scores({ gameResults, id }) {
   return (
-    <section>
-      <h1>Scores</h1>
-      <ul>
+    <section className="scores">
+      <h1 className="scores-title">Scores</h1>
+      <ul className="scores-list">
         {gameResults.map(result => {
           return (
-            <li key={result.key}>
-              {result.key} {result.value} {result.key === id ? "<-- you" : null}
+            <li className="scores-list-item" key={result.key}>
+              {result.key} &nbsp; {result.value}{" "}
+              {result.key === id ? "<-- you" : null}
             </li>
           );
         })}
