@@ -1,4 +1,5 @@
-import Waiting from "../../src/components/Waiting";
+import Waiting from "../src/components/Waiting";
+import React from "react";
 import { shallow } from "enzyme";
 
 describe("Readying Up", () => {
