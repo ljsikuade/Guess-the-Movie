@@ -55,4 +55,4 @@ npm run demon
 
 3. Some bugfixes (v. occasional memory leaks that need to be reproduced)
 
-noob-friendly
+
