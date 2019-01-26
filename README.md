@@ -54,3 +54,5 @@ npm run demon
 2. More extensibility and eventually a database
 
 3. Some bugfixes (v. occasional memory leaks that need to be reproduced)
+
+
