@@ -1,6 +1,6 @@
 import React from "react";
 import io from "socket.io-client";
-import style from "../styles/style.css";
+import style from "../styles/style.scss";
 import Quiz from "./Quiz";
 import Lobby from "./Lobby";
 import Waiting from "./Waiting";

@@ -1,5 +1,5 @@
 import React from "react";
-//let host = `${window.location.protocol}//${window.location.host}`;
+import sleepy from "../../static/images/snoring.jpg";
 let globalSocket;
 
 class Waiting extends React.Component {
@@ -63,20 +63,23 @@ class Waiting extends React.Component {
   render() {
     return (
       <section className="waiting">
-        <div className="number-of-people">
-          People in {this.props.room}: {this.state.players}{" "}
-        </div>
-        <button
-          className="ready-up"
-          disabled={this.state.players < 2}
-          onClick={this.readyUp}
-        >
-          Ready Up
-        </button>
+        <span className="number-ready-group">
+          <div className="number-of-people">
+            People in {this.props.room}: {this.state.players}{" "}
+          </div>
+          <button
+            className="ready-up"
+            disabled={this.state.players < 2}
+            onClick={this.readyUp}
+          >
+            Ready Up
+          </button>
 
-        <div className="players-ready">
-          Players Ready: {this.state.readyCount} / 4
-        </div>
+          <div className="players-ready">
+            Players Ready: {this.state.readyCount} / 4
+          </div>
+        </span>
+        <img className="sleepy" src={sleepy} />
       </section>
     );
   }

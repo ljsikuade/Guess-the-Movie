@@ -11,7 +11,6 @@ let refinedResults = {};
 let roundData = {};
 let readyObj = {};
 
-//I should make this an object...
 function timer(time, everySecond, whenDone, killCondition) {
   everySecond = everySecond || function() {};
   whenDone = whenDone || function() {};
@@ -152,8 +151,6 @@ io.on("connection", socket => {
       roomName === room ? roundData[roomName] : null
     );
     if (roundCount[0] === 4) {
-      console.log("yoyo");
-      //turn {id: [true, false, true]} into {id: 2}
       Object.keys(results).forEach(key => {
         refinedResults = Object.assign({}, refinedResults, {
           [key]: results[key]
